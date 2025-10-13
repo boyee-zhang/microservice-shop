@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  mysql-user:
+    image: mysql:8.0
+    container_name: mysql-user
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: user_service_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3307:3306"   # 宿主机端口 3307，对应容器里的 3306
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+
+volumes:
+  mysql_user_data:
