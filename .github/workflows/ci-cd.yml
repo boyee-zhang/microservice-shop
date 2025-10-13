@@ -20,6 +20,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: orderpass
           MYSQL_DATABASE: orderdb
+          MYSQL_USER: orderuser
+          MYSQL_PASSWORD: orderpass
         ports:
           - 3309:3306
         options: >-
