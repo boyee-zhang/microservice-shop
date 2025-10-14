@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and test ${{ matrix.service }}
         working-directory: ${{ matrix.service }}
-        run: mvn clean install
+        run: mvn clean install -Dspring.profiles.active=ci
 
   docker-build-and-push:
     needs: build-and-test
