@@ -2,59 +2,38 @@ name: CI/CD Microservices
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [OrderService, ProductService, UserService]
-    services:
-      mysql-order:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: orderpass
-          MYSQL_DATABASE: orderdb
-          MYSQL_USER: orderuser
-          MYSQL_PASSWORD: orderpass
-        ports:
-          - 3309:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
 
+    services:
       mysql-product:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: productpass
           MYSQL_DATABASE: productdb
+          MYSQL_USER: productuser
+          MYSQL_PASSWORD: productpass
         ports:
-          - 3308:3306
+          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping -h localhost"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=5
 
-      mysql-user:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: pass
-          MYSQL_DATABASE: userdb
-        ports:
-          - 3307:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+    env:
+      DB_HOST: mysql-product       # GitHub Actions 内自动解析容器名
+      DB_PORT: 3306
+      DB_NAME: productdb
+      DB_USER: productuser
+      DB_PASSWORD: productpass
+      SERVER_PORT: 8082
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -65,9 +44,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build and test ${{ matrix.service }}
-        working-directory: ${{ matrix.service }}
-        run: mvn clean install -Dspring.profiles.active=ci
+      - name: Build and Test ProductService
+        working-directory: ProductService
+        run: mvn clean install
 
   docker-build-and-push:
     needs: build-and-test
@@ -82,14 +61,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker images
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/orderservice:latest OrderService
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/productservice:latest ProductService
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/userservice:latest UserService
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/productservice:latest ProductService
 
-      - name: Push Docker images
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/orderservice:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/productservice:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/userservice:latest
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/productservice:latest
