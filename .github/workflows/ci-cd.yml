@@ -57,4 +57,13 @@ jobs:
 
       - name: Build and Test ProductService
         working-directory: ProductService
-        run: mvn clean install -Dspring.profiles.active=test
+        run: |
+          echo "===== Environment Variables ====="
+          echo "DB_HOST = $DB_HOST"
+          echo "DB_PORT = $DB_PORT"
+          echo "DB_NAME = $DB_NAME"
+          echo "DB_USER = $DB_USER"
+          echo "DB_PASSWORD = $DB_PASSWORD"
+          echo "================================="
+          
+          mvn clean install -Dspring.profiles.active=test
