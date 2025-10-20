@@ -28,3 +28,9 @@ jobs:
         run: |
           echo "===== Using in-memory H2 DB ====="
           mvn clean install -Dspring.profiles.active=test
+
+      - name: Build and Test OrderService
+        working-directory: OrderService
+        run: |
+          echo "===== Using in-memory H2 DB for OrderService ====="
+          mvn clean install -Dspring.profiles.active=test
