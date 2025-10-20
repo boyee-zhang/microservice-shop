@@ -10,8 +10,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      SERVER_PORT: 8082
+    strategy:
+      matrix:
+        service: [ProductService, OrderService, UserService]
 
     steps:
       - name: Checkout code
@@ -23,14 +24,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build and Test ProductService
-        working-directory: ProductService
+      - name: Build and Test ${{ matrix.service }}
+        working-directory: ${{ matrix.service }}
         run: |
-          echo "===== Using in-memory H2 DB ====="
-          mvn clean install -Dspring.profiles.active=test
-
-      - name: Build and Test OrderService
-        working-directory: OrderService
-        run: |
-          echo "===== Using in-memory H2 DB for OrderService ====="
+          echo "===== Building and Testing ${{ matrix.service }} using in-memory H2 DB ====="
           mvn clean install -Dspring.profiles.active=test
