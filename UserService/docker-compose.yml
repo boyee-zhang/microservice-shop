@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mysql-user:
     image: mysql:8.0
@@ -10,9 +9,25 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: pass
     ports:
-      - "3307:3306"   # 宿主机端口 3307，对应容器里的 3306
+      - "3307:3306"
     volumes:
       - mysql_user_data:/var/lib/mysql
+
+  user-service:
+    image: user-service:latest
+    container_name: user-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mysql-user
+      DB_PORT: 3306
+      DB_NAME: user_service_db
+      DB_USER: user
+      DB_PASSWORD: pass
+    depends_on:
+      - mysql-user
 
 volumes:
   mysql_user_data:

@@ -16,7 +16,6 @@
 	<description>Product microservice for Online Shop</description>
 
 	<dependencies>
-		<!-- 如果 ProductService 有自己特有的依赖（比如 Elasticsearch、Kafka 等），就在这里加 -->
 	</dependencies>
 
 	<build>
@@ -24,6 +23,13 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

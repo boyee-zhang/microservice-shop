@@ -1,0 +1,114 @@
+networks:
+  microservices_net:
+    driver: bridge
+
+volumes:
+  mysql_user_data:
+  mysql_product_data:
+  mysql_order_data:
+
+services:
+  # --- USER SERVICE ---
+  mysql-user:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: user_service_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+    networks:
+      - microservices_net
+
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mysql-user
+      DB_PORT: 3306
+      DB_NAME: user_service_db
+      DB_USER: user
+      DB_PASSWORD: pass
+    depends_on:
+      - mysql-user
+    networks:
+      - microservices_net
+
+  # --- PRODUCT SERVICE ---
+  mysql-product:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: productdb
+      MYSQL_USER: productuser
+      MYSQL_PASSWORD: productpass
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_product_data:/var/lib/mysql
+    networks:
+      - microservices_net
+
+  product-service:
+    build:
+      context: ./ProductService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      DB_HOST: mysql-product
+      DB_PORT: 3306
+      DB_NAME: productdb
+      DB_USER: productuser
+      DB_PASSWORD: productpass
+    depends_on:
+      - mysql-product
+    networks:
+      - microservices_net
+
+  # --- ORDER SERVICE ---
+  mysql-order:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: orderdb
+      MYSQL_USER: orderuser
+      MYSQL_PASSWORD: orderpass
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_order_data:/var/lib/mysql
+    networks:
+      - microservices_net
+
+  order-service:
+    build:
+      context: ./OrderService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      SERVER_PORT: 8083
+      DB_HOST: mysql-order
+      DB_PORT: 3306
+      DB_NAME: orderdb
+      DB_USER: orderuser
+      DB_PASSWORD: orderpass
+    depends_on:
+      - mysql-order
+    networks:
+      - microservices_net
